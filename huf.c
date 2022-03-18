@@ -106,23 +106,28 @@ int initTree(node** Tree, Dict* T){
 void insert(node* tmp,node** Tree,int* taille){
 	node** tmpTree = (node**)malloc(sizeof(node) * (*taille-1));
 
-	for (int i = 2; i < *taille; ++i){		
-		if (tmp->occurrence > Tree[i]->occurrence)	
-			tmpTree[i-2] = Tree[i];
-		else {
-			tmpTree[i-2] = tmp;
-			for (int j = i; j < *taille; ++j)
-				tmpTree[j-1] = Tree[j];
-			break;
+	if (*taille == 2)
+		tmpTree[0] = tmp;
+	else{
+		for (int i = 2; i < *taille; ++i){		
+			if (tmp->occurrence > Tree[i]->occurrence)	
+				tmpTree[i-2] = Tree[i];
+			else {
+				tmpTree[i-2] = tmp;
+				for (int j = i; j < *taille; ++j)
+					tmpTree[j-1] = Tree[j];
+				break;
+			}
 		}
 	}
-	free(tmp);
+	//free(tmp);
 	//free(Tree);
 	*taille -= 1;
 	//Tree =  (node**)malloc(sizeof(node) * (*taille));
 	// copying
 	for (int i = 0; i < *taille; ++i)
 		Tree[i] = tmpTree[i];
+	free(tmpTree);
 }
 
 
@@ -140,7 +145,7 @@ node* Huff(node** Tree, int taille, const int length){
 	return tmp;
 }
 
-void initCodes(codes* code, node* root, int arr[], int top, int* cpt){
+void initCodes(codes** code, node* root, int arr[], int top, int* cpt){
 	if (root->left) {
 		arr[top] = 0;
 		initCodes(code, root->left, arr, top + 1, cpt);
@@ -150,10 +155,12 @@ void initCodes(codes* code, node* root, int arr[], int top, int* cpt){
 		initCodes(code, root->right, arr, top + 1, cpt);
 	}
 	if (isLeaf(root)) {
-		code[*cpt].size = top;
-		code[*cpt].car = root->letter;
+		codes* tmp = (codes*)malloc(sizeof(codes));
+		tmp->size = top;
+		tmp->car = root->letter;
 		for (int i = 0; i < top; ++i)
-			code[*cpt].code[i] = arr[i];
+			tmp->code[i] = arr[i];
+		code[*cpt] = tmp;
 		*cpt += 1;
 	}
 }
@@ -176,57 +183,38 @@ int main(int argc, char *argv[])
 	t1 = clock();
 	Dict Occur[ASCII]; // char(ascii) : occurance    	
 	char* fileName = argv[1];
-	const int length = readFileOccur(fileName, Occur);
+	const int length = readFileOccur(fileName, Occur); // return number of file length 
 
 	sortOccurrence(Occur, 0, ASCII);
 
 	node** Tree = (node**)malloc(sizeof(node) * ASCII);
-	const int nbrCharacter = initTree(Tree, Occur);
+	const int nbrCharacter = initTree(Tree, Occur); // return number of different type of characters
 
 	node *HuffTree = Huff(Tree, nbrCharacter, length);
 
-	codes binary[nbrCharacter]; // stocking every char and their new binary code
+	codes* binary[nbrCharacter]; // stocking every char and their new binary code
 	int cpt = 0;
 	int arr[MAX_TREE_HT];
 	initCodes(binary, HuffTree, arr, 0, &cpt);
 
 
 
-
-	for (int i = 0; i < nbrCharacter; ++i)
-	{
-		printf("%c : ", binary[i].car);
-		for (int j = 0; j < binary[i].size; ++j)
-		{
-			printf("%d", binary[i].code[i]);
-		}
-		printf("\n");
-	}
-
 	
 
-//********** Test ****/
-	for (int i = 0; i < 256; ++i)
-	{
-		if (Occur[i].occurrence != 0)
-		{
-			printf("%c : %d \n", Occur[i].character, Occur[i].occurrence);
-		}
-	}
-
-	
-	printf("*********************************************\n\n");
-
-	for (int i = 0; i < nbrCharacter; ++i)
-	{
-		printf("%c : %d \n", Tree[i]->letter, Tree[i]->occurrence);
-
-	}
-//************** fin de test ****/
 	t1 = clock() - t1;
 	printf("Compression terminated. \n");
 	printf("Time taken by compression: %f seconds.\n", ((double)t1) / CLOCKS_PER_SEC);
 	printf("Some informations: \n");
+
+	for (int i = 0; i < nbrCharacter; ++i)
+	{
+		printf("%c : ", binary[i]->car);
+		for (int j = 0; j < binary[i]->size; ++j)
+		{
+			printf("%d", binary[i]->code[j]);
+		}
+		printf("\n");
+	}
 
 	
 	return 0;
