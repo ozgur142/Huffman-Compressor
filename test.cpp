@@ -47,5 +47,14 @@ int main(int argc, char const *argv[])
 
 
 
+   char al = 'a';
+   char b = 'b';
+   char d = 'a';
+   if ( al == d)
+      printf("\nsaozzgur\n");
+
+
+
+
 
 }

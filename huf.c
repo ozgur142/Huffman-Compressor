@@ -120,10 +120,8 @@ void insert(node* tmp,node** Tree,int* taille){
 			}
 		}
 	}
-	//free(tmp);
-	//free(Tree);
+
 	*taille -= 1;
-	//Tree =  (node**)malloc(sizeof(node) * (*taille));
 	// copying
 	for (int i = 0; i < *taille; ++i)
 		Tree[i] = tmpTree[i];
@@ -165,7 +163,27 @@ void initCodes(codes** code, node* root, int arr[], int top, int* cpt){
 	}
 }
 
-void show(){
+void show(const int nbrCharacter, codes** binary, Dict* T, const int length){
+	printf("\nSome informations: \n");
+	printf("character  :  binary(code)  :  frequency of character (approx) \n");
+
+	for (int i = 0; i < nbrCharacter; ++i)
+	{
+		printf("     %c     :     ", binary[i]->car);
+		for (int j = 0; j < binary[i]->size; ++j)
+		{
+			printf("%d", binary[i]->code[j]);
+		}
+		for (int j = ASCII-1; j >= 0; --j)
+		{
+			if (binary[i]->car == T[j].character)
+				printf("      :   %%%d ",  (T[j].occurrence*100) / length);
+		}
+		printf("\n");
+	}
+}
+
+void writeFile(){
 
 }
 
@@ -197,24 +215,26 @@ int main(int argc, char *argv[])
 	int arr[MAX_TREE_HT];
 	initCodes(binary, HuffTree, arr, 0, &cpt);
 
+//********************************************* TODO
+
+	//Todo
+	// dosyaya binary yazma	
+	writeFile();
 
 
+	
 	
 
 	t1 = clock() - t1;
 	printf("Compression terminated. \n");
 	printf("Time taken by compression: %f seconds.\n", ((double)t1) / CLOCKS_PER_SEC);
-	printf("Some informations: \n");
+	
 
-	for (int i = 0; i < nbrCharacter; ++i)
-	{
-		printf("%c : ", binary[i]->car);
-		for (int j = 0; j < binary[i]->size; ++j)
-		{
-			printf("%d", binary[i]->code[j]);
-		}
-		printf("\n");
-	}
+	// TODO : her harfin yüzdelik , eski ve yeni dosyaların büyüklükeri ve sıkıştırılmadan kazanılan oran
+	// tek tip karakter için ve boş dosya için güvenlik
+	show(nbrCharacter, binary, Occur, length);
+
+	
 
 	
 	return 0;
