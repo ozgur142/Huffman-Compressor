@@ -22,7 +22,6 @@ node* new_node(int data, char letter){
 }
 
 
-
 int isLeaf(node* root){ 
     return !(root->left) && !(root->right); 
 } 
